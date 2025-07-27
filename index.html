@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instagram Reel Downloader</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #6a0dad, #00bfff);
+      color: #fff;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    input, button {
+      padding: 12px;
+      font-size: 18px;
+      margin: 10px;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    button {
+      background: #6a0dad;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 30px;
+      background: white;
+      color: black;
+      border-radius: 12px;
+      padding: 20px;
+      display: none;
+    }
+    video {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .actions {
+      margin-top: 10px;
+    }
+    .actions button {
+      margin: 5px;
+    }
+    .credit {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Instagram Reel Downloader</h1>
+  <input type="text" id="reelUrl" placeholder="Paste Instagram Reel URL here" />
+  <button onclick="downloadReel()">Download Reel</button>
+
+  <div id="result">
+    <video id="videoPreview" controls autoplay muted></video>
+    <div class="actions">
+      <button onclick="forceDownload()">⬇️ Download</button>
+      <button onclick="alert('Drive save coming soon')">💾 Save to Drive</button>
+    </div>
+  </div>
+
+  <div class="credit">
+    Made with ❤️ by <a href="https://instagram.com/mr.aman._.077" style="color: gold;">@mr.aman._.077</a> |
+    Telegram: <a href="https://t.me/AMANlSHERE" style="color: gold;">@AMANlSHERE</a>
+  </div>
+
+  <script>
+    let videoURL = "";
+
+    async function downloadReel() {
+      const reelUrl = document.getElementById('reelUrl').value.trim();
+      if (!reelUrl) return alert("Please enter a reel URL");
+
+      const apiUrl = "https://instagram-reels-downloader-api.p.rapidapi.com/download?url=" + encodeURIComponent(reelUrl);
+      const headers = {
+        'x-rapidapi-key': 'e10b993b2bmshba131c16b20e561p13b98ejsnb22c81e8351b',
+        'x-rapidapi-host': 'instagram-reels-downloader-api.p.rapidapi.com'
+      };
+
+      document.getElementById('result').style.display = "none";
+
+      try {
+        const res = await fetch(apiUrl, { method: "GET", headers });
+        const data = await res.json();
+
+        const vid = data?.data?.medias?.[0]?.url;
+        if (!vid) return alert("❌ Invalid or private reel.");
+
+        videoURL = vid;
+        const videoElement = document.getElementById('videoPreview');
+        videoElement.src = videoURL;
+
+        document.getElementById('result').style.display = "block";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Failed to fetch video. Check API or URL.");
+      }
+    }
+
+    function forceDownload() {
+      if (!videoURL) return;
+
+      fetch(videoURL)
+        .then(res => res.blob())
+        .then(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = "reel.mp4";
+          a.click();
+        });
+    }
+  </script>
+
+</body>
+</html>
